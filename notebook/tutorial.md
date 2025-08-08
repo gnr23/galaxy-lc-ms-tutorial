@@ -9,7 +9,7 @@ The goal is to understand the processing pipeline of raw mass spectrometry data 
 - `notebooks/`: Notes, markdown files, and Jupyter notebooks
 - `results/`: Output from data processing, figures, tables
 
-## 🚀 Tutorial Source
+## Tutorial Source
 Based on the Galaxy Training Network tutorial:
 👉 [LC-MS analysis (Metabolomics)](https://training.galaxyproject.org/training-material/topics/metabolomics/tutorials/lcms/tutorial.html#preprocessing-with-xcms)
 
@@ -25,16 +25,16 @@ To get familiar with the main steps constituting a metabolomic workflow for unta
 
 To evaluate the potential of a workflow approach when dealing with LC-MS metabolomic data.
 
-## ✅ Step 1: Galaxy Login and History Setup
+## Step 1: Galaxy Login and History Setup
 - Go to [Galaxy Europe](https://usegalaxy.eu/)
 - Create an account or log in
 - Create a new history: `LCMSMS Tutorial`
 
-## ✅ Step 2: Data Upload
+## Step 2: Data Upload
 - Upload the demo data as described in the tutorial (e.g. via shared data → data libraries)
 - Check that the data are in `.mzML` format
 
-## ✅ Step 3: Start the workflow
+## Step 3: Start the workflow
 - Launch the pre-defined workflow or follow step-by-step
 - First tool: `XCMS input data` (set parameters as per tutorial)
 
