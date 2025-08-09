@@ -1,11 +1,11 @@
 ﻿# LC-MS/MS Metabolomics Tutorial (Galaxy)
 
 ## Table of contents
-1. Project description
- 1.1. Folder structure
-    1.2. Tutorial Source
-  1.3. Questions
-  1.4. Objectives
+1.1. Project description
+ 1.2. Folder structure
+    1.3. Tutorial Source
+  1.4. Questions
+  1.5. Objectives
 2. Preprocessing with XCMS
     1.  Importing the LC/MS data into Galaxy
     2.  Data preparation for XCMS:  _MSnbase readMSData_
@@ -28,7 +28,7 @@
 5.  Annotation
 6.  Conclusion
 
-## 🔬 1. Project Description
+## 🔬 1.1. Project Description
 
 This repository follows the Galaxy tutorial for LC-MS/MS-based metabolomics analysis.
 
@@ -39,7 +39,7 @@ The goal is to understand the processing pipeline of raw mass spectrometry data 
 3.  **Statistical Analysis**  highlights interesting information inside the data
 4.  **Annotation**  puts a name on selected variables
 
-## 📁1.1.  Folder Structure
+## 📁1.2.  Folder Structure
 
 - `raw_data/`: Raw mzML files or data obtained from the Galaxy server
 
@@ -47,19 +47,19 @@ The goal is to understand the processing pipeline of raw mass spectrometry data 
 
 - `results/`: Output from data processing, figures, tables
 
-## 1.2. Tutorial Source
+## 1.3. Tutorial Source
 
 Based on the Galaxy Training Network tutorial:
 
 👉 [LC-MS analysis (Metabolomics)](https://training.galaxyproject.org/training-material/topics/metabolomics/tutorials/lcms/tutorial.html#preprocessing-with-xcms)
 
-## 1.3. Questions:
+## 1.4. Questions:
 
 What are the main steps of untargeted LC-MS data processing for metabolomic analysis?
 
 How to conduct metabolomic data analysis from preprocessing to annotation using Galaxy?
 
-## 1.4. Objectives:
+## 1.5. Objectives:
 
 To comprehend the diversity of LC-MS metabolomic data analysis.
 
