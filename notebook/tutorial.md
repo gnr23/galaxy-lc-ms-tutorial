@@ -1,6 +1,4 @@
-﻿<![endif]-->
-
-# LC-MS/MS Metabolomics Tutorial (Galaxy)
+﻿# LC-MS/MS Metabolomics Tutorial (Galaxy)
 
 ## 🔬 Project Description
 
@@ -92,9 +90,9 @@ In the pop-up window, choose
 
 Click on Import
 
-## Step 2: Data preparation for XCMS: MSnbase readMSData
+# Step 2: Data preparation for XCMS: MSnbase readMSData
 
-- Launch the pre-defined workflow from tools menu typing Msnbase
+ Launch the pre-defined workflow from tools menu typing Msnbase
 
 we get a Dataset collection containing 9 dataset. The datasets are some RData objects with the rdata.msnbase.raw datatype.
 
@@ -292,13 +290,13 @@ How: Hands On: xcms plot chromatogram
 
 <![if !supportLists]>o <![endif]>_“RData file”_: xset.merged.groupChromPeaks.adjustRtime.RData
 
-Observations :
+:exclamation: Observations :
 
 <![if !supportLists]>1. <![endif]>Applying the correction retention time step on the data requires to complete it with an **additional ‘grouping’** step using the **xcms groupChromPeaks (group)** tool again.
 
 <![if !supportLists]>2. <![endif]>Parameters for this second group step are expected to be similar to the first group step. Nonetheless, since retention times are supposed to be less variable inside a same peak group now, in some cases it can be relevant to lower a little the bandwidth parameter.
 
-<![if !supportLists]>- <![endif]>how:
+how:
 
 second 'xcms groupChromPeaks (group)'
 
@@ -320,4 +318,177 @@ _“Number of decimal places for retention time values reported in ions’ ident
 
 _“Replace the remain NA by 0 in the dataMatrix”_: No
 
-## Step 8: Final XCMS step: _integrating areas of missing peaks
+:chart_with_upwards_trend: Output
+Image NA.png
+
+:alarm_clock: Observations: 
+In the XCMS extraction workflow, the peak list contains NA when peaks where not considered peaks in only some of the samples in the first ‘findChromPeaks’ step. This does not necessary means that no peak exists for these samples. For example, sometimes peaks are of very low intensity for some samples and were not kept as peaks because of that in the first ‘findChromPeaks’ step.
+
+## Step 8: Final XCMS step: integrating areas of missing peaks
+
+ :bulb: Goal:
+ To integrate signal in the mz-rt area of an ion (chromatographic peak group) for samples in which no chromatographic peak for this ion was identified.
+:pencil2: How: **xcms** **fillChromPeaks (fillPeaks)**[](https://training.galaxyproject.org/training-material/topics/metabolomics/tutorials/lcms/tutorial.html#hands-on-xcms-fillchrompeaks-fillpeaks)
+
+1.  **xcms fillChromPeaks (fillPeaks)**  tool  with the following parameters:
+    -   _“RData file”_:  `xset.merged.groupChromPeaks.*.RData`
+    -   In  _“Peak List”_:
+        -   _“Convert retention time (seconds) into minutes”_:  `Yes`
+        -   _“Number of decimal places for retention time values reported in ions’ identifiers.”_:  `2`
+Image NA.png
+
+:chart_with_upwards_trend: Output
+
+:alarm_clock: Observations: 
+
+The  _“Reported intensity values”_  parameter is important here. It defines how the intensity will be computed. You have three choices:
+
+-   into : integration of peaks (_i.e._  areas under the peaks)
+-   maxo : maximum height of peaks
+-   intb : integration of peaks with baseline subtraction
+
+
+## Conclusions :white_check_mark: 
+
+
+At the end of the Preprocessing step, we have three tabulation-separated tables:
+
+-   A  **sampleMetadata**  file given and completed 
+-   A  **dataMatrix**  file from XCMS.fillChromPeaks
+-   A  **variableMetadata**  file from either XCMS.fillChromPeaks or CAMERA.annotate
+
+## Step 9 (optional): Annotation with CAMERA R package
+
+:bulb: Goal
+
+With the **CAMERA.annotate**  tool module from CAMERA R package we perform a first annotation of our data based on XCMS outputs.
+
+-   Polarity setting
+-   For statistical analysis, we define if we have two or more conditions to compare. 
+-   We can define how many significant ions will be used for extracted ions chromatogram (EIC) plot. 
+- These plots will be included in a pdf file.
+
+Apart from the PDF file, the main three outcomes from  **CAMERA.annotate**  tool  are three columns added in the variableMetadata file:
+
+-   **isotopes:**  
+-   **adduct:** this column is filled only in the ‘All functions’ mode
+-   **pcgroup:**  this stands for Pearson’s correlation group; it corresponds to groups of ions that match regarding retention time and intensity correlations, leading to think that maybe they could come from the same original metabolite.
+
+:pencil2: How:
+1. **CAMERA.annotate**  tool with the following parameters:
+
+-   _“RData file”_:  `xset.merged.groupChromPeaks.*.fillChromPeaks.RData`
+-   In  _“Annotate Isotopes [findIsotopes]”_:
+    -   _“Max. ion charge”_:  `2`
+-   _“Mode”_:  `Only groupFWHM and findIsotopes functions [quick]`
+-   In  _“Export options”_:
+    -   _“Convert retention time (seconds) into minutes”_:  `Yes`
+    -   _“Number of decimal places for retention time values reported in ions’ identifiers.”_:  `2`
+
+:heavy_exclamation_mark: Comment: The information given by this tool is not mandatory for the next step of the metabolomic workflow. 
+
+:heavy_exclamation_mark: **Preparation for next steps**: *At this step of the metabolomic workflow, I will split my analysis by beginning a new Galaxy history with only the 3 tables I need. for tidiness and for future review of the analysis process reasons. To begin a new history with the 3 tables from the current history, we use the functionality ‘copy dataset’ and copy it into a new history.*
+image copy datasets.png
+
+# Data processing: quality checks, normalisation, data filtering
+
+
+**:notebook:Covering 3 steps:**
+
+   
+-   overview of the variability in the data
+-   signal drift correction
+-   filtering of unreliable variables based on coefficients of variation
+
+## Step 1 :  global variability in the data
+
+**:bulb: Goal**
+Getting a complete view of such dataset  using some common unsupervised multivariate analysis.
+We Used   **Principal Components Analysis** (PCA) method
+
+**:pencil2: How:** 
+
+Using  **Quality Metrics**  to get an overview of myhdata[](https://training.galaxyproject.org/training-material/topics/metabolomics/tutorials/lcms/tutorial.html#hands-on-using-b-quality-metrics-b-to-get-an-overview-of-your-data)
+
+1.  **Quality Metrics**  tool  with the following parameters:
+    -   _“Data matrix file”_:  `dataMatrix.tsv`
+    -   _“Sample metadata file”_:  `sampleMetadata_completed.tsv`
+    -   _“Variable metadata file”_:  `variableMetadata.tsv`
+
+**:chart_with_upwards_trend: Output**
+output quality metrics image.png
+-   Summary of the intensities in the dataMatrix file (information.txt file and plot top center paragraph)
+-   View of these intensities with a color scale (plot bottom right panel)
+-   2-components PCA score plot to check for clusters or outliers (plot top left panel)
+-   Sum of intensities per sample according to injection order to check the presence of signal drift or batch effect (plot top center panel)
+-   Z-scores for intensity distribution and proportion of missing values (plot bottom left panel)
+-   Ions’ standard deviation (sd) and mean values (plot top right panel)
+- 
+ :heavy_exclamation_mark: Comments: 
+
+1.  We can see in the figure that the global intensity of samples seems to decrease with the injection order. We suspect a signal drift due to the clogging effect of successive injection of samples. This signal drift could be the reason why so many ions in the dataset led to high CV values for pools
+2.  From identifiers on the plot, it seems that the lowest numbers in IDs are at the right side of the first component. Knowing that these numbers correspond to an order in the injection sequence, we can link it to the previous picture’s samples. Then, what we can observe is that the order of samples in the first component of PCA from right to left corresponds approximately to the decreasing order of sums of intensities. Thus, we can conclude that the main variability in the dataset may be due to the signal drift.
+
+## Step 2 :  handling the signal drift observed all through the analytical sequence
+
+**:bulb: Goal**
+To normalise the data in order to get rid of unwanted variabilities due to signal drift between different sample batches/ analytical runs.
+**:pencil2: How:** 
+Data normalisation[](https://training.galaxyproject.org/training-material/topics/metabolomics/tutorials/lcms/tutorial.html#hands-on-data-normalisation)
+
+1.  **Batch_correction**  tool  with the following parameters:
+    -   _“Data matrix file”_:  `dataMatrix.tsv`
+    -   _“Sample metadata file”_:  `sampleMetadata_completed.tsv`
+    -   _“Variable metadata file”_:  `variableMetadata.tsv`
+    -   _“Type of regression model “_:  `linear`
+        -   _“Factor of interest “_:  `gender`
+
+**:chart_with_upwards_trend: Output**
+batch correction 1 .png
+batch correction 2 .png
+
+ :heavy_exclamation_mark: **Comments**: 
+  In this case-study, since we only have 3 pools, there are only two possible choices: _linear_ or _all loess sample_ When possible, we should use pools to correct the signal drift, that is why we chose to run the tool with _linear_.
+
+## Step 3: getting rid of unreliable variables using CV[](https://training.galaxyproject.org/training-material/topics/metabolomics/tutorials/lcms/tutorial.html#step-3-getting-rid-of-unreliable-variables-using-cv)
+**:bulb: Goal**
+To filter the ions not reliable enough, we can consider CVs as a filtering indicator because the data still contains unusable ions. .
+**:pencil2: How:** 
+The  **Quality Metrics**  tool  tool provides different CV indicators depending on what is in your sample list. it can compute pool CVs  but also a ratio between pool CVs and sample CVs. This is particularly of interest since we can expect that, whatever the pool CV value, it will be lower than the corresponding sample CV value, since biological samples are supposed to be affected by biological variability. we can filter the ions that do not respect this particular condition
+Hands On: CV calculation[](https://training.galaxyproject.org/training-material/topics/metabolomics/tutorials/lcms/tutorial.html#hands-on-cv-calculation)
+
+1.  **Quality Metrics**  tool  with the following parameters:
+    -   _“Data matrix file”_:  `Batch_correction_linear_dataMatrix.tsv`
+    -   _“Sample metadata file”_:  `sampleMetadata_completed.tsv`
+    -   _“Variable metadata file”_:  `Batch_correction_linear_variableMatrix.tsv`
+
+ :heavy_exclamation_mark: **Comments**: we used this tool again, since this time indicators will be computed on normalised intensities. What we are going to use this time is the tabular output, but while we are at it we can always check the pdf file.
+ 
+**:chart_with_upwards_trend: Output**: The tool provides a variableMetadata tabular output, containing all the computed CV values. We can use these values to filter our data using the **Generic_Filter**   tool.
+
+**:pencil2: How:**: Data filtering[](https://training.galaxyproject.org/training-material/topics/metabolomics/tutorials/lcms/tutorial.html#hands-on-data-filtering)
+
+1.  **Generic_Filter**  tool  with the following parameters:
+    -   _“Data matrix file”_:  `Batch_correction_linear_dataMatrix.tsv`
+    -   _“Sample metadata file”_:  `sampleMetadata_completed.tsv`  or  `Quality Metrics_sampleMetadata_completed.tsv`
+    -   _“Variable metadata file”_:  `Quality Metrics_Batch_correction_linear_variableMetadata.tsv`
+    -   _“Deleting samples and/or variables according to Numerical values”_:  `yes`
+        -   param-repeat  _“Identify the parameter to filter “_
+            -   _“On file”_:  `Variable metadata`
+            -   _“Name of the column to filter”_:  `poolCV_over_sampleCV`
+            -   _“Interval of values to remove”_:  `upper`
+                -   _“Remove all values upper than”_:  `1.0`
+        -   param-repeat  _“Insert Identify the parameter to filter “_
+            -   _“On file”_:  `Variable metadata`
+            -   _“Name of the column to filter”_:  `pool_CV`
+            -   _“Interval of values to remove”_:  `upper`
+                -   _“Remove all values upper than”_:  `0.3`
+    -   _“Deleting samples and/or variables according to Qualitative values”_:  `yes`
+        -   param-repeat  _“Removing a level in factor”_
+            -   _“Name of the column to filter”_:  `sampleType`
+            -   _“Remove factor when”_:  `pool`
+
+
+  :heavy_exclamation_mark: **Outcome**: we got rid of the pools. 
+
+
