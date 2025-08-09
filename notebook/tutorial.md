@@ -61,14 +61,14 @@ How to conduct metabolomic data analysis from preprocessing to annotation using 
 
 ## 1.5. Objectives:
 
-Perform basic data acquisition, processing, and modelling in metabolomics 
-Estimate what factors contribute to designing a successful metabolomics study
-Describe the issues of data standards and sharing in metabolomics
-Access and use public metabolomics resources 
-Cite the principles of creating a standardised workflow to perform basic metabolomics analysis
-To comprehend the diversity of LC-MS metabolomic data analysis.
-To get familiar with the main steps constituting a metabolomic workflow for untargeted LC-MS analysis.
-To evaluate the potential of a workflow approach when dealing with LC-MS metabolomic data.
+• Perform basic data acquisition, processing, and modelling in metabolomics 
+• Estimate what factors contribute to designing a successful metabolomics study
+• Describe the issues of data standards and sharing in metabolomics
+• Access and use public metabolomics resources 
+• Cite the principles of creating a standardised workflow to perform basic metabolomics analysis
+• To comprehend the diversity of LC-MS metabolomic data analysis.
+• To get familiar with the main steps constituting a metabolomic workflow for untargeted LC-MS analysis.
+• To evaluate the potential of a workflow approach when dealing with LC-MS metabolomic data.
 
 
 # Preprocessing with XCMS
