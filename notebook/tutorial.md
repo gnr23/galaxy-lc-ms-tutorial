@@ -84,8 +84,9 @@ To Create a new history for this study
 
 -   Option 1: from a shared data library 
 ![Option 1](Images/1.jpg)
--   Option 2: from Zenodo using the URLs given below
-`
+
+-   Option 2: 
+from Zenodo using the URLs given below
 https://zenodo.org/record/3244991/files/HU_neg_048.mzML
 https://zenodo.org/record/3244991/files/HU_neg_090.mzML
 https://zenodo.org/record/3244991/files/HU_neg_123.mzML
@@ -96,6 +97,7 @@ https://zenodo.org/record/3244991/files/QC1_002.mzML
 https://zenodo.org/record/3244991/files/QC1_008.mzML
 https://zenodo.org/record/3244991/files/QC1_014.mzML
 
+![Option 2](Images/3.png)
 
 ## 2: Data preparation for XCMS: MSnbase readMSData
 
@@ -103,7 +105,7 @@ https://zenodo.org/record/3244991/files/QC1_014.mzML
 
 we get a Dataset collection containing 9 dataset. The datasets are some RData objects with the rdata.msnbase.raw datatype.
 
-- Now that we have prepared the data, we can begin with the first XCMS extraction step: peakpicking. However, before beginning to extract meaningful information from the raw data, we may be interested in visualising your chromatograms. This can be of particular interest if you want to check whether we should consider discarding some range of your analytical sequence (some scan or retention time (RT) ranges).
+-Before beginning to extract meaningful information from the raw data, we may be interested in visualising your chromatograms. This can be of particular interest if you want to check whether we should consider discarding some range of your analytical sequence (some scan or retention time (RT) ranges).
 
 To do so, we can use a tool that is called *xcms plot chromatogram* tool that will plot each sample’s chromatogram (see dedicated section further). However, to use this tool, we may need additional information about your samples for colouring purpose.
 
@@ -117,10 +119,14 @@ xcms get a sampleMetadata file[](https://training.galaxyproject.org/training-mat
 
 1.  **xcms get a sampleMetadata file**  tool  with the following parameters:
     -   param-collection  _“RData file”_: the  `sacurine.raw.RData`  collection output from  **MSnbase readMSData**
+![Option 1](Images/5.png)
+![Option 1](Images/6.png)
+![Option 1](Images/7.png)
 
 :heavy_exclamation_mark: **Comment**: 
 
 I obtained a `tabular` file (with a first column of identifiers and a second column called _class_ which is empty for the moment (only ‘.’ for each sample). I can now download this file by clicking on the galaxy-save icon.
+![Tabular](Images/9.png)
 
 
 
@@ -142,17 +148,18 @@ Using the tool xcms plot chromatogram[](https://training.galaxyproject.org/train
     -   _“RData file”_:  `sacurine.raw.RData`  (collection)
     -   _“Sample metadata file”_:  `sampleMetadata_completed.tsv`  you uploaded previously
     
-
-
-
+![Tabular](Images/10.png)
 
 **:chart_with_upwards_trend: Output**
+
+![Tabular](Images/11.png)
+
 
 This tool generates Base Peak Intensity Chromatograms (BPIs) and Total Ion Chromatograms (TICs). I provided groups so I obtained two plots: one with colours based on provided groups, one with one colour per sample.
 
 
 
-## 5: First XCMS Step: _peak picking_
+## 5: First XCMS Step: Peak picking
 **:bulb: Goal**
 
 Peakpicking step with the XCMS findChromPeaks (xcmsSet) tool. The idea here is, for each peak, to proceed to chromatographic peak detection/
