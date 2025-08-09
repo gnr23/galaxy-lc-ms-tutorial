@@ -1,4 +1,6 @@
-﻿# LC-MS/MS Metabolomics Tutorial (Galaxy)
+﻿
+
+# LC-MS/MS Metabolomics Tutorial (Galaxy)
 
 ## 🔬 Project Description
 
@@ -490,5 +492,108 @@ Hands On: CV calculation[](https://training.galaxyproject.org/training-material/
 
 
   :heavy_exclamation_mark: **Outcome**: we got rid of the pools. 
+  
+   :heavy_exclamation_mark: **Remarks**:
+  1.  The  _0.3_  value corresponds to the maximum value kept in the dataset (‘Interval of values to remove:  _upper_’) regarding the  _poolCV_  column in the  _Variable metadata_  file.  pool CV values are commonly considered as reflecting unstable ions when superior to 0.3. Although the signal drift correction decreased the proportion of ions with pool CV > 30% from 74% to 53%, we still need to get rid of these remaining unstable ions for which sample comparisons would be difficult and at high risk of being unreliable.
+2.  The  _1.0_  value corresponds to the maximum value kept in the dataset (‘Interval of values to remove:  _upper_’) regarding the  _poolCV_over_sampleCV_  column in _Variable metadata_  file. This means that any ion with a pool CV / sample CV ratio above 1 (_i.e._  a pool CV greater than the sample CV) is discarded from the dataset.
+3.  Filtering led to 2706 ions and 6 samples.
+4. Our tables are ready for the statistical analysis.
+
+# Statistical analysis to find variables of interest
+We will take the example of univariate analysis, using the `bmi` column of the **sampleMetadata file** as the study’s biological factor investigated (body mass index). Since this variable is quantitative, we will chose in this example to measure the link between the BMI and the measured ions using a **statistical correlation calculation**.
+
+## Step 1: Computation of statistical indices
+**:bulb: Goal**
+
+To compute the correlation coefficients used to estimate the link between the biological variable `bmi` and the ions that we have in our dataset.
+
+**:pencil2: How:** 
+
+For this calculation we can use the  **Univariate**  tool  tool.
+
+ 1.  **Univariate**  tool  with the following parameters
+      _“Data matrix file”_:  `Generic_Filter_Batch_correction_linear_dataMatrix.tsv`
+       _“Sample metadata file”_:  `Generic_Filter_Quality Metrics_sampleMetadata_completed.tsv`
+        _“Variable metadata file”_:  `Generic_Filter_Quality Metrics_Batch_correction_linear_variableMetadata.tsv`
+        _“Factor of interest”_:  `bmi    -   _“Test”_:  `Spearman correlation rank test (quantitative)`
+       _“Method for multiple testing correction”_:  `none
+       
+**:chart_with_upwards_trend: Output** : 
+
+The tool provides different types of output. statistical indices in the  _variableMetadata output_  (such as p-values and statistical indicators). ‘Significant’ results are illustrated by graphics in the  _Univariate_figure.pdf_  file.
+The tool also found that 61 variables have a correlation coefficient significantly different from 0.
+
+ :heavy_exclamation_mark: **Comments**: 
+ 
+ 1. we  perform the analysis without multiple testing correction.b ased on the fact that only 6 biological samples in a dataset of 2706 ions it is almost impossible to settle for correlation coefficients significantly different from zero. 
+
+ 
+
+## Step 2: Reducing the dataset to keep ions of interest only
+**:bulb: Goal**
+
+We will use statistical indices allowing us to determine which ions should be kept or discarded.
+
+**:pencil2: How:** 
+
+Variable filtering
+
+In our example of correlation analysis, two indices can be used to filter the data.
+
+-   **P-values:**  it indicates whether it is likely for a given correlation coefficient not to be actually different from zero; considering a threshold of 0.05 generally corresponds to a misleading risk of 5%.
+-   **Correlation coefficient:**  it indicates if the correlation between a given ion and the biological factor is strong or not; it goes from -1 to 1, with 0 meaning no correlation; in our example we consider as a sufficiently strong link a coefficient with absolute value above 0.9.
+1.  **Generic_Filter**  tool  with the following parameters:
+    -   _“Data matrix file”_:  `Generic_Filter_Batch_correction_linear_dataMatrix.tsv`
+    -   _“Sample metadata file”_:  `Generic_Filter_Quality Metrics_sampleMetadata_completed.tsv`
+    -   _“Variable metadata file”_:  `Univariate_Generic_Filter_Quality Metrics_Batch_correction_linear_variableMetadata.tsv`
+    -   _“Deleting samples and/or variables according to Numerical values”_:  `yes`
+        -   param-repeat  _“Identify the parameter to filter “_
+            -   _“On file”_:  `Variable metadata`
+            -   _“Name of the column to filter”_:  `bmi_spearman_none`
+            -   _“Interval of values to remove”_:  `upper`
+                -   _“Remove all values upper than”_:  `0.05`
+        -   param-repeat  _“Insert Identify the parameter to filter “_
+            -   _“On file”_:  `Variable metadata`
+            -   _“Name of the column to filter”_:  `bmi_spearman_cor`
+            -   _“Interval of values to remove”_:  `between`
+                -   _“Remove all values between”_:  `-0.9`
+                -   _“And”_:  `0.9`
+    -   _“Deleting samples and/or variables according to Qualitative values”_:  `no`
+
+**:chart_with_upwards_trend: Output**:
+
+In this workflow, the statistical filtering led to 25 remaining ions, linked to the BMI values by high correlation coefficients. 
 
 
+ :heavy_exclamation_mark: **Comments**:
+ 
+ With this filter we obtain a subset of our  data, supposedly ions that may present an interest regarding our study. 
+In our example of correlation analysis, two indices can be used to filter the data.
+
+-   **P-values:**  it indicates whether it is likely for a given correlation coefficient not to be actually different from zero; considering a threshold of 0.05 generally corresponds to a misleading risk of 5%.
+-   **Correlation coefficient:**  it indicates if the correlation between a given ion and the biological factor is strong or not; it goes from -1 to 1, with 0 meaning no correlation; in our example we consider as a sufficiently strong link a coefficient with absolute value above 0.9.
+
+# Annotation
+
+
+**:bulb: Goal**
+To bring your ion’s masses and a reference mass bank face to face. This will give you potential origins of your ions.
+
+**:pencil2: How:** 
+In this tutorial, we chose the easy case of human urinary samples. Thus, one possibility we have is to use the online reference bank HMDB (The Human Metabolome Database). Let’s try requesting directly into this widely used bank using the  **HMDB MS search**  tool  tool.
+
+Annotating the data using the HMDB[](https://training.galaxyproject.org/training-material/topics/metabolomics/tutorials/lcms/tutorial.html#hands-on-annotating-the-data-using-the-hmdb)
+
+ 1.  **HMDB MS search**  tool  with the following parameters:>    
+   _“Would you use a file “_:  `YES`>         -   _“File of masses (Variable Metadata) “_:  `Generic_Filter_Univariate_Generic_Filter_Quality Metrics_Batch_correction_linear_variableMetadata.tsv`
+        -   _“Do you have a header “_:  `YES`
+         -   _“Column of masses “_:  `c3`
+     -   _“Mass-to-charge ratio “_:  `0.005`
+     -   _“Number of maximum entries returned by the query “_:  `3`
+     -   _“Molecular Species “_:  `Negatif Mode
+
+ :heavy_exclamation_mark: **Comments**: we provide a Mass-to-charge ratio (_i.e._ a mass delta) based on what we globally know about the technique used to analyze the samples. Has to be set with a relevant value. If too low, no matches for the ions even though the original molecule is present in the database. Setting too high --> huge number of matches,time-consuming 
+ 
+# Conclusion
+
+data analysis in Metabolomics with LC-MS data workflow example.
