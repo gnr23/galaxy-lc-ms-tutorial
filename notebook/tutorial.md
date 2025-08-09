@@ -1,34 +1,65 @@
-﻿
+﻿# LC-MS/MS Metabolomics Tutorial (Galaxy)
 
-# LC-MS/MS Metabolomics Tutorial (Galaxy)
+## Table of contents
+1. Project description
+ 1.1. Folder structure
+    1.2. Tutorial Source
+  1.3. Questions
+  1.4. Objectives
+2. Preprocessing with XCMS
+    1.  Importing the LC/MS data into Galaxy
+    2.  Data preparation for XCMS:  _MSnbase readMSData_
+    3.  Importing a sample metadata file
+    4.  Overview of the chromatograms
+    5.  First XCMS step:  _peak picking_
+    6.  Gathering the different samples in one Rdata file
+    7.  Second XCMS step:  _determining shared ions across samples_
+    7b.  Optional XCMS step:  _retention time correction_ 
+    8.  Final XCMS step:  _integrating areas of missing peaks_
+    9.  Annotation with CAMERA
+    10. Conclusions 
+3.  Data processing: quality checks, normalisation, data filtering
+    1.  Global variability in the data
+    2. Handling the signal drift observed all through the analytical sequence
+    3. Getting rid of unreliable variables using CV
+4.  Statistical analysis to find variables of interest
+    1.  Computation of statistical indices
+    2.  Reducing the dataset to keep ions of interest only
+5.  Annotation
+6.  Conclusion
 
-## 🔬 Project Description
+## 🔬 1. Project Description
 
 This repository follows the Galaxy tutorial for LC-MS/MS-based metabolomics analysis.
 
 The goal is to understand the processing pipeline of raw mass spectrometry data and extract meaningful biological insight.
 
-## 📁 Folder Structure
+1.  **Preprocessing**  extracts ions from raw data
+2.  **Data processing**  checks the quality of data and transforms it to something relevant
+3.  **Statistical Analysis**  highlights interesting information inside the data
+4.  **Annotation**  puts a name on selected variables
+
+## 📁1.1.  Folder Structure
 
 - `raw_data/`: Raw mzML files or data obtained from the Galaxy server
 
-- `notebooks/`: Notes, markdown files, and Jupyter notebooks
+- `notebook/`: Notes, markdown files, and Jupyter notebooks
 
 - `results/`: Output from data processing, figures, tables
 
-## Tutorial Source
+## 1.2. Tutorial Source
 
 Based on the Galaxy Training Network tutorial:
 
 👉 [LC-MS analysis (Metabolomics)](https://training.galaxyproject.org/training-material/topics/metabolomics/tutorials/lcms/tutorial.html#preprocessing-with-xcms)
 
-## Questions:
+## 1.3. Questions:
 
 What are the main steps of untargeted LC-MS data processing for metabolomic analysis?
 
 How to conduct metabolomic data analysis from preprocessing to annotation using Galaxy?
 
-## Objectives:
+## 1.4. Objectives:
 
 To comprehend the diversity of LC-MS metabolomic data analysis.
 
@@ -36,63 +67,37 @@ To get familiar with the main steps constituting a metabolomic workflow for unta
 
 To evaluate the potential of a workflow approach when dealing with LC-MS metabolomic data.
 
-## Galaxy Login and History Setup
 
-- Go to [Galaxy Europe](https://usegalaxy.eu/)
+# Preprocessing with XCMS
+	
+## 1. Importing the LC-MS data into galaxy
 
-- Create an account or log in
+**:bulb: Goal**
+ 
+To Create a new history for this study
 
-- Create a new history: `LCMSMS Tutorial`
+**:pencil2: How:** 
 
-- ![Login to Galaxy](Images/new.jpg)
 
-## Step 1: Importing the lc-ms data into galaxy
+- To create a new history simply click the new-history icon at the top of the history panel:
+- Import the 9 `mzXML` files into a collection named `sacurine`
 
--Importing via links
+-   Option 1: from a shared data library 
+![Option 1](Images/1.jpg)
+-   Option 2: from Zenodo using the URLs given below
+`
+https://zenodo.org/record/3244991/files/HU_neg_048.mzML
+https://zenodo.org/record/3244991/files/HU_neg_090.mzML
+https://zenodo.org/record/3244991/files/HU_neg_123.mzML
+https://zenodo.org/record/3244991/files/HU_neg_157.mzML
+https://zenodo.org/record/3244991/files/HU_neg_173.mzML
+https://zenodo.org/record/3244991/files/HU_neg_192.mzML
+https://zenodo.org/record/3244991/files/QC1_002.mzML
+https://zenodo.org/record/3244991/files/QC1_008.mzML
+https://zenodo.org/record/3244991/files/QC1_014.mzML
 
-Copy the link location
 
-Click galaxy-upload Upload Data at the top of the tool panel
-
-Click on Collection on the top
-
-Select galaxy-wf-edit Paste/Fetch Data
-
-Paste the link(s) into the text field
-
-Change Type (set all): from “Auto-detect” to mzml
-
-Press Start
-
-Click on Build when available
-
-Enter a name for the collection
-
-sacurine
-
-Click on Create list (and wait a bit)
-
-or
-
-As an alternative to uploading the data from a URL or your computer, the files may also have been made available from a shared data library:
-
-Go into Libraries (left panel)
-
-Navigate to the correct folder as indicated by your instructor.
-
-On most Galaxies tutorial data will be provided in a folder named Libraries - GTN - Material
-
-- Metabolomics Mass spectrometry: LC-MS analysis
-
-Click on Add to History galaxy-dropdown near the top and select as a Collection from the dropdown menu
-
-In the pop-up window, choose
-
-“Select history”: the history we want to import the data to (or create a new one)
-
-Click on Import
-
-# Step 2: Data preparation for XCMS: MSnbase readMSData
+## 2: Data preparation for XCMS: MSnbase readMSData
 
  Launch the pre-defined workflow from tools menu typing Msnbase
 
@@ -100,65 +105,79 @@ we get a Dataset collection containing 9 dataset. The datasets are some RData ob
 
 - Now that we have prepared the data, we can begin with the first XCMS extraction step: peakpicking. However, before beginning to extract meaningful information from the raw data, we may be interested in visualising your chromatograms. This can be of particular interest if you want to check whether we should consider discarding some range of your analytical sequence (some scan or retention time (RT) ranges).
 
-To do so, we can use a tool that is called xcms plot chromatogram tool that will plot each sample’s chromatogram (see dedicated section further). However, to use this tool, we may need additional information about your samples for colouring purpose.
+To do so, we can use a tool that is called *xcms plot chromatogram* tool that will plot each sample’s chromatogram (see dedicated section further). However, to use this tool, we may need additional information about your samples for colouring purpose.
 
 Thus, we may need to upload into Galaxy a table containing metadata of our samples (a sampleMetadata file).
 
-## Step 3 : Importing a sample metadata file
+## 3 : Importing a sample metadata file
 
-- A sampleMetadata file corresponds to a table containing information about the samples (= sample metadata).
+**:pencil2: How:** 
 
-A sample metadata file contains various information for each of your raw files:
+xcms get a sampleMetadata file[](https://training.galaxyproject.org/training-material/topics/metabolomics/tutorials/lcms/tutorial.html#hands-on-xcms-get-a-samplemetadata-file)
 
---Classes which will be used during the preprocessing steps
+1.  **xcms get a sampleMetadata file**  tool  with the following parameters:
+    -   param-collection  _“RData file”_: the  `sacurine.raw.RData`  collection output from  **MSnbase readMSData**
 
---Analytical batches which will be useful for a batch correction step, along with sample types (pool/sample) and injection order
+:heavy_exclamation_mark: **Comment**: 
 
---Different experimental conditions which can be used for statistics
+I obtained a `tabular` file (with a first column of identifiers and a second column called _class_ which is empty for the moment (only ‘.’ for each sample). I can now download this file by clicking on the galaxy-save icon.
 
---information about samples that you want to keep, in a column format
 
---The content of your sample metadata file has to be filled by you, since it is not contained in your raw data. Note that you can either:
 
-how to Upload an existing metadata file:
+    
 
-Use a template to create one (because it can be painful to get the sample list without misspelling or omission)
 
-Generate a template with the xcms get a sampleMetadata file tool tool
+## 4: Getting an overview of your samples’ chromatograms
 
-Fill it using your favorite table editor (Excel, LibreOffice etc.)
+**:bulb: Goal**
+ 
+ To  Base Peak Intensity Chromatograms (BPIs) and Total Ion Chromatograms (TICs) early on in my study
 
-Upload it within Galaxy
+**:pencil2: How:** 
 
-In this Tutorial we open xcms and get a samplemetadata file from tools and load the xcms get a sampleMetadata file tool with the following parameters: param-collection “RData file”: the sacurine.raw.RData collection output from MSnbase readMSData
+Using the tool xcms plot chromatogram[](https://training.galaxyproject.org/training-material/topics/metabolomics/tutorials/lcms/tutorial.html#hands-on-xcms-plot-chromatogram)
 
-##From this tool, we obtain a tabular file (meaning a tab-separated text file) with a first column of identifiers and a second column called class which is empty for the moment (only ‘.’ for each sample). we can now download this file by clicking on the galaxy-save icon.
+1.  **xcms plot chromatogram**  tool  with the following parameters:
+    
+    -   _“RData file”_:  `sacurine.raw.RData`  (collection)
+    -   _“Sample metadata file”_:  `sampleMetadata_completed.tsv`  you uploaded previously
+    
 
-Tip: Changing the datatype
 
-Click on the galaxy-pencil pencil icon for the dataset to edit its attributes
 
-In the central panel, click galaxy-chart-select-data Datatypes tab on the top
 
-In the galaxy-chart-select-data Assign Datatype, select your desired datatype from “New Type” dropdown
+**:chart_with_upwards_trend: Output**
 
-Tip: you can start typing the datatype into the field to filter the dropdown menu
+This tool generates Base Peak Intensity Chromatograms (BPIs) and Total Ion Chromatograms (TICs). I provided groups so I obtained two plots: one with colours based on provided groups, one with one colour per sample.
 
-Click the Save button
 
-## Step 4:Getting an overview of your samples’ chromatograms
 
-xcms plot chromatogram
+## 5: First XCMS Step: _peak picking_
+**:bulb: Goal**
 
-xcms plot chromatogram tool with the following parameters:
+Peakpicking step with the XCMS findChromPeaks (xcmsSet) tool. The idea here is, for each peak, to proceed to chromatographic peak detection/
 
-“RData file”: sacurine.raw.RData (collection)
+**:pencil2: How:** 
 
-“Sample metadata file”: sampleMetadata_completed.tsv we uploaded previously
+**XCMS findChromPeaks (xcmsSet)**[](https://training.galaxyproject.org/training-material/topics/metabolomics/tutorials/lcms/tutorial.html#hands-on-xcms-findchrompeaks-xcmsset)
 
-This tool generates Base Peak Intensity Chromatograms (BPIs) and Total Ion Chromatograms (TICs).
+1.  **xcms findChromPeaks (xcmsSet)**  tool  with the following parameters:
+    
+    -   _“RData file”_:  `sacurine.raw.RData`  (collection)
+    -   _“Extraction method for peaks detection”_:  `CentWave - chromatographic peak detection using the centWave method`
+    
+    -   _“Max tolerated ppm m/z deviation in consecutive scans in ppm”_:  `3`
+    -   _“Min,Max peak width in seconds”_:  `5,20`
+    -   In  **Advanced Options**:
+        -   _“Prefilter step for for the first analysis step (ROI detection)”_:  `3,5000`
+        -   _“Noise filter”_:  `1000`
 
-## Step 5: 1st XCMS Step
+**:chart_with_upwards_trend: Output**
+
+
+:heavy_exclamation_mark: **Comment**: 
+ 
+XCMS provides other filtering options allowing you to get rid of ions that we don’t want to consider. For example, we can use _Spectra Filters_ allowing you to discard some RT or M/z ranges, or _Noise filter_ (as in this hands-on) not to use low intensity measures in the ROI detection step.
 
 The XCMS solution provides two different algorithms to perform chromatographic peak detection: matchedFilter and centWave. Here we use centWave
 
@@ -170,167 +189,89 @@ On these regions of interest, a second derivative of a Gaussian model is applied
 
 2. At the end of the algorithm, a list of peaks is obtained for each sample. This list is then considered to represent the content of your sample; if an existing peak is not considered a peak at this step, then it can not be considered in the next steps of pre-processing.
 
-peakpicking step with the xcms findChromPeaks (xcmsSet) tool
 
-xcms findChromPeaks (xcmsSet) tool with the following parameters:
 
-“RData file”: sacurine.raw.RData (collection)
+## 6: Gathering the different samples in one Rdata file
 
-“Extraction method for peaks detection”: CentWave - chromatographic peak detection using the centWave method
+**:bulb: Goal**
 
-“Max tolerated ppm m/z deviation in consecutive scans in ppm”: 3
+To merge the different `RData` files into a single one
 
-“Min,Max peak width in seconds”: 5,20
+**:pencil2: How:** 
 
-In Advanced Options:
+**xcms findChromPeaks Merger[](https://training.galaxyproject.org/training-material/topics/metabolomics/tutorials/lcms/tutorial.html#hands-on-xcms-findchrompeaks-merger)**
 
-“Prefilter step for for the first analysis step (ROI detection)”: 3,5000
+1.  **xcms findChromPeaks Merger**  tool  with the following parameters:
+    -   _“RData file”_:  `sacurine.raw.xset.RData`  (collection)
+    -   _“Sample metadata file”_:  `Nothing selected`
 
-“Noise filter”: 1000
+**:chart_with_upwards_trend: Output**
 
-leave the other parameters with their default values.
+The tool generates a single  `RData`  file containing information from all the samples in your dataset collection input.
 
-obtain a dataset collection containing one RData file per sample, with independent lists of ions.
+ :heavy_exclamation_mark: **Comments**: 
 
-To get all this files together to identify which ions are shared between samples, XCMS provides a function that is called groupChromPeaks (or group). But before proceeding to this grouping step, first you need to group your individual RData files into a single one.
+In the case of this study , we do not want to separate the samples according to groups, so we do not provide the sampleMetadata when executing the Merger tool.
 
-## Step 6: Gathering the different samples in one Rdata file
+## 7: Second XCMS step: determining shared ions across samples
 
-Tool = to merge the different RData files into a single one: xcms findChromPeaks Merger
+ **:bulb: Goal**
 
-he tool also provides de possibility to take into account a sampleMetadata file. To treat part of your samples a different way when proceeding to the grouping step using xcms groupChromPeaks (group)
+We want now is a single matrix of ions intensities for all samples. To obtain such a table, we need to determine, among the individual ion lists, which ions are the same. This is the aim of the present step, called ‘grouping’.
 
-For example if in the analytical sequence some blank samples (your injection solvent) that you want to extract along with your biological samples to be able to use them as a reference for noise estimation and noise filtering.
+**:pencil2: How:** 
 
-xcms findChromPeaks Merger tool with the following parameters:
+xcms groupChromPeaks (group)[](https://training.galaxyproject.org/training-material/topics/metabolomics/tutorials/lcms/tutorial.html#hands-on-xcms-groupchrompeaks-group)
 
-“RData file”: sacurine.raw.xset.RData (collection)
+1.  **xcms groupChromPeaks (group)**  tool  with the following parameters:
+    
+    -   _“RData file”_:  `xset.merged.RData`
+    -   _“Method to use for grouping”_:  `PeakDensity - peak grouping based on time dimension peak densities`
+    
+    -   _“Bandwidth”_:  `5.0`
+    -   _“Width of overlapping m/z slices”_:  `0.01`
 
-“Sample metadata file”: Nothing selected
+**:chart_with_upwards_trend: Output**
 
-Click on param-collection Dataset collection in front of the input parameter you want to supply the collection to.
 
-Select the collection you want to use from the list
+ :heavy_exclamation_mark: **Comments**: 
+1.  When looking at the  `283.1127 - 283.1163`  m/z slice, There are 3 peak groups in this m/z slice. The two peaks that are not assigned to peak groups are alone in their retention time area. Thus, the number of samples under the corresponding density peaks does not reach the minimum fraction of samples set by the user (0.5) to consider a peak group.
 
-we do not want to separate the samples according to groups, so we do not provide the sampleMetadata when executing the Merger tool.
+3.  For  `284.1198 - 284.1253`  m/z slice, if   the bandwidth value had been set to a smaller value, the density peak width would have been smaller. With a small-enough bandwidth value, there could have been two density peaks instead of one under the current first density peak. Thus, the sample in line 5 would have been out of the previous peak group, thus not assigned to any peak group due to the 0.5 minimum fraction limit.
 
-The tool generates a single RData file containing information from all the samples in the dataset collection input.
 
-## Step 7: Second XCMS step: determining shared ions across samples
+## 7b: XCMS step: retention time correction
 
- - List item Goal: to obtain a single matrix of ions intensities for all samples.
- - This process is called grouping
- - It aligns ions extracted with close retention time and close m/z values in the different samples
- - An algorithm is used to detect region of retention time with high density of ions based on a gaussian moden the grouping is  defined by the SD of the model.
- - how:
+ **:bulb: Goal**
 
-xcms groupChromPeaks (group)
+To correct retention time drift for each peak among samples. The correction is based on what is called _well behaved peaks_, that are peaks found in all samples or at least in most of the samples.
 
-**xcms groupChromPeaks** (**group**) tool with the following parameters:
+**:pencil2: How:** 
 
-“RData file”: xset.merged.RData
+xcms adjustRtime (retcor)[](https://training.galaxyproject.org/training-material/topics/metabolomics/tutorials/lcms/tutorial.html#hands-on-xcms-adjustrtime-retcor)
 
-“Method to use for grouping”: PeakDensity - peak grouping based on time dimension peak densities
+1.  **xcms adjustRtime (retcor)**  tool  with the following parameters:
+    -   _“RData file”_:  `xset.merged.groupChromPeaks.RData`
+    -   _“Method to use for retention time correction”_:  `PeakGroups - retention time correction based on aligment of features (peak groups) present in most/all samples.`
+        -   _“Minimum required fraction of samples in which peaks for the peak group were identified”_:  `0.8299`
 
-“Bandwidth”: 5.0
+everything else is left to default values.
 
-“Width of overlapping m/z slices”: 0.01
+**:chart_with_upwards_trend: Output**
 
-<![if !supportLists]>· <![endif]>What just happened
 
--a pdf file is created.
+ :heavy_exclamation_mark: **Comments**: 
 
--It provides one plot per m/z slice found in the data.
+This tool generated a plot output that visualises how retention time was applied across the samples and along the chromatogram. It also allows you to check whether the well behaved peaks were distributed homogeneously along the chromatogram.
 
--Each picture represents the peak density across samples,
-
--plotting the corresponding Gaussian model which width is defined by the bandwidth parameter.
-
--Each red dot corresponds to a sample. The plot allows to assess the quality of alignment.
-
--he grey areas’ width is associated with the bandwidth parameter.
-
-Observations:
-
-<![if !supportLists]>1. <![endif]>For the 283.1127 - 283.1163 m/z slice, there are 3 peak groups. The two peaks that are not assigned to peak groups are alone in their retention time area. Thus, the number of samples under the corresponding density peaks does not reach the minimum fraction of samples set by the user (0.5) to consider a peak group.
-
-<![if !supportLists]>2. <![endif]>For the 284.1198 - 284.1253 m/z slice,  If the bandwidth value had been set to a smaller value, the density peak width would have been smaller. With a small-enough bandwidth value, there could have been two density peaks instead of one under the current first density peak. Thus, the sample in line 5 would have been out of the previous peak group, thus not assigned to any peak group due to the 0.5 minimum fraction limit.
-
-## Step 7b: XCMS step: retention time correction
-
-<![if !supportLists]>· <![endif]>Goal: To correct retention time drift for each peak among samples.
-
--With LC-MS techniques, a deviation in retention time occurs from a sample to another.
-
--The correction is based on what is called _well behaved peaks_ a.k.a
-
-a percentage of the total number of samples in which a peak should be found to be considered a well behaved peak.
-
--This parameter is called _minimum required fraction of samples_.
-
-<![if !supportLists]>· <![endif]>how:
-
-xcms adjustRtime (retcor)
-
-**xcms adjustRtime (retcor)** tool with the following parameters:
-
-<![if !supportLists]>o <![endif]>_“RData file”_: xset.merged.groupChromPeaks.RData
-
-<![if !supportLists]>o <![endif]>_“Method to use for retention time correction”_: PeakGroups - retention time correction based on aligment of features (peak groups) present in most/all samples.
-
-<![if !supportLists]>§ <![endif]>_“Minimum required fraction of samples in which peaks for the peak group were identified”_: 0.8299
-
-<![if !supportLists]>· <![endif]>What just happened
-
--This tool generates a plot output that you can use to visualise how retention time was applied across the samples and along the chromatogram. -It also to check whether the well behaved peaks were distributed homogeneously along the chromatogram.
-
-<![if !supportLists]>· <![endif]>Extra step: Tip: Check the impact of RT correction using 'xcms plot chromatogram'
-
-How: Hands On: xcms plot chromatogram
-
-**xcms plot chromatogram** tool with the following parameters:
-
-<![if !supportLists]>o <![endif]>_“RData file”_: xset.merged.groupChromPeaks.adjustRtime.RData
-
-:exclamation: Observations :
-
-<![if !supportLists]>1. <![endif]>Applying the correction retention time step on the data requires to complete it with an **additional ‘grouping’** step using the **xcms groupChromPeaks (group)** tool again.
-
-<![if !supportLists]>2. <![endif]>Parameters for this second group step are expected to be similar to the first group step. Nonetheless, since retention times are supposed to be less variable inside a same peak group now, in some cases it can be relevant to lower a little the bandwidth parameter.
-
-how:
-
-second 'xcms groupChromPeaks (group)'
-
-**xcms groupChromPeaks (group)** tool with the following parameters:
-
-_“RData file”_: xset.merged.groupChromPeaks.adjustRtime.RData
-
-_“Method to use for grouping”_: PeakDensity - peak grouping based on time dimension peak densities
-
-_“Bandwidth”_: 5.0
-
-_“Width of overlapping m/z slices”_: 0.01
-
-_“Get the Peak List”_: Yes
-
-_“Convert retention time (seconds) into minutes”_: Yes
-
-_“Number of decimal places for retention time values reported in ions’ identifiers.”_: 2
-
-_“Replace the remain NA by 0 in the dataMatrix”_: No
-
-:chart_with_upwards_trend: Output
-Image NA.png
-
-:alarm_clock: Observations: 
-In the XCMS extraction workflow, the peak list contains NA when peaks where not considered peaks in only some of the samples in the first ‘findChromPeaks’ step. This does not necessary means that no peak exists for these samples. For example, sometimes peaks are of very low intensity for some samples and were not kept as peaks because of that in the first ‘findChromPeaks’ step.
-
-## Step 8: Final XCMS step: integrating areas of missing peaks
+## 8: Final XCMS step: integrating areas of missing peaks
 
  :bulb: Goal:
+ 
  To integrate signal in the mz-rt area of an ion (chromatographic peak group) for samples in which no chromatographic peak for this ion was identified.
-:pencil2: How: **xcms** **fillChromPeaks (fillPeaks)**[](https://training.galaxyproject.org/training-material/topics/metabolomics/tutorials/lcms/tutorial.html#hands-on-xcms-fillchrompeaks-fillpeaks)
+:pencil2: How: 
+
+**xcms** **fillChromPeaks (fillPeaks)**[](https://training.galaxyproject.org/training-material/topics/metabolomics/tutorials/lcms/tutorial.html#hands-on-xcms-fillchrompeaks-fillpeaks)
 
 1.  **xcms fillChromPeaks (fillPeaks)**  tool  with the following parameters:
     -   _“RData file”_:  `xset.merged.groupChromPeaks.*.RData`
@@ -349,19 +290,9 @@ The  _“Reported intensity values”_  parameter is important here. It defines 
 -   maxo : maximum height of peaks
 -   intb : integration of peaks with baseline subtraction
 
+## 9 (optional) : Annotation with CAMERA R package
 
-## Conclusions :white_check_mark: 
-
-
-At the end of the Preprocessing step, we have three tabulation-separated tables:
-
--   A  **sampleMetadata**  file given and completed 
--   A  **dataMatrix**  file from XCMS.fillChromPeaks
--   A  **variableMetadata**  file from either XCMS.fillChromPeaks or CAMERA.annotate
-
-## Step 9 (optional): Annotation with CAMERA R package
-
-:bulb: Goal
+:bulb: **Goal**
 
 With the **CAMERA.annotate**  tool module from CAMERA R package we perform a first annotation of our data based on XCMS outputs.
 
@@ -376,7 +307,7 @@ Apart from the PDF file, the main three outcomes from  **CAMERA.annotate**  tool
 -   **adduct:** this column is filled only in the ‘All functions’ mode
 -   **pcgroup:**  this stands for Pearson’s correlation group; it corresponds to groups of ions that match regarding retention time and intensity correlations, leading to think that maybe they could come from the same original metabolite.
 
-:pencil2: How:
+:pencil2: **How**:
 1. **CAMERA.annotate**  tool with the following parameters:
 
 -   _“RData file”_:  `xset.merged.groupChromPeaks.*.fillChromPeaks.RData`
@@ -387,10 +318,24 @@ Apart from the PDF file, the main three outcomes from  **CAMERA.annotate**  tool
     -   _“Convert retention time (seconds) into minutes”_:  `Yes`
     -   _“Number of decimal places for retention time values reported in ions’ identifiers.”_:  `2`
 
-:heavy_exclamation_mark: Comment: The information given by this tool is not mandatory for the next step of the metabolomic workflow. 
+:heavy_exclamation_mark: **Comment**: 
 
-:heavy_exclamation_mark: **Preparation for next steps**: *At this step of the metabolomic workflow, I will split my analysis by beginning a new Galaxy history with only the 3 tables I need. for tidiness and for future review of the analysis process reasons. To begin a new history with the 3 tables from the current history, we use the functionality ‘copy dataset’ and copy it into a new history.*
+The information given by this tool is not mandatory for the next step of the metabolomic workflow. 
+
+:heavy_exclamation_mark: **Preparation for next steps**: 
+
+*At this step of the metabolomic workflow, I will split my analysis by beginning a new Galaxy history with only the 3 tables I need. for tidiness and for future review of the analysis process reasons. To begin a new history with the 3 tables from the current history, we use the functionality ‘copy dataset’ and copy it into a new history.*
+
 image copy datasets.png
+
+## 10. Conclusions :white_check_mark: 
+
+
+At the end of the Preprocessing step, we have three tabulation-separated tables:
+
+-   A  **sampleMetadata**  file given and completed 
+-   A  **dataMatrix**  file from XCMS.fillChromPeaks
+-   A  **variableMetadata**  file from either XCMS.fillChromPeaks or CAMERA.annotate
 
 # Data processing: quality checks, normalisation, data filtering
 
@@ -402,7 +347,7 @@ image copy datasets.png
 -   signal drift correction
 -   filtering of unreliable variables based on coefficients of variation
 
-## Step 1 :  global variability in the data
+## 1 :  global variability in the data
 
 **:bulb: Goal**
 Getting a complete view of such dataset  using some common unsupervised multivariate analysis.
@@ -431,7 +376,7 @@ output quality metrics image.png
 1.  We can see in the figure that the global intensity of samples seems to decrease with the injection order. We suspect a signal drift due to the clogging effect of successive injection of samples. This signal drift could be the reason why so many ions in the dataset led to high CV values for pools
 2.  From identifiers on the plot, it seems that the lowest numbers in IDs are at the right side of the first component. Knowing that these numbers correspond to an order in the injection sequence, we can link it to the previous picture’s samples. Then, what we can observe is that the order of samples in the first component of PCA from right to left corresponds approximately to the decreasing order of sums of intensities. Thus, we can conclude that the main variability in the dataset may be due to the signal drift.
 
-## Step 2 :  handling the signal drift observed all through the analytical sequence
+## 2 :  handling the signal drift observed all through the analytical sequence
 
 **:bulb: Goal**
 To normalise the data in order to get rid of unwanted variabilities due to signal drift between different sample batches/ analytical runs.
@@ -452,10 +397,13 @@ batch correction 2 .png
  :heavy_exclamation_mark: **Comments**: 
   In this case-study, since we only have 3 pools, there are only two possible choices: _linear_ or _all loess sample_ When possible, we should use pools to correct the signal drift, that is why we chose to run the tool with _linear_.
 
-## Step 3: getting rid of unreliable variables using CV[](https://training.galaxyproject.org/training-material/topics/metabolomics/tutorials/lcms/tutorial.html#step-3-getting-rid-of-unreliable-variables-using-cv)
+## 3: getting rid of unreliable variables using CV[
 **:bulb: Goal**
-To filter the ions not reliable enough, we can consider CVs as a filtering indicator because the data still contains unusable ions. .
+
+To filter the ions not reliable enough, we can consider CVs as a filtering indicator because the data still contains unusable ions.
+
 **:pencil2: How:** 
+
 The  **Quality Metrics**  tool  tool provides different CV indicators depending on what is in your sample list. it can compute pool CVs  but also a ratio between pool CVs and sample CVs. This is particularly of interest since we can expect that, whatever the pool CV value, it will be lower than the corresponding sample CV value, since biological samples are supposed to be affected by biological variability. we can filter the ions that do not respect this particular condition
 Hands On: CV calculation[](https://training.galaxyproject.org/training-material/topics/metabolomics/tutorials/lcms/tutorial.html#hands-on-cv-calculation)
 
@@ -464,11 +412,17 @@ Hands On: CV calculation[](https://training.galaxyproject.org/training-material/
     -   _“Sample metadata file”_:  `sampleMetadata_completed.tsv`
     -   _“Variable metadata file”_:  `Batch_correction_linear_variableMatrix.tsv`
 
- :heavy_exclamation_mark: **Comments**: we used this tool again, since this time indicators will be computed on normalised intensities. What we are going to use this time is the tabular output, but while we are at it we can always check the pdf file.
- 
-**:chart_with_upwards_trend: Output**: The tool provides a variableMetadata tabular output, containing all the computed CV values. We can use these values to filter our data using the **Generic_Filter**   tool.
+ :heavy_exclamation_mark: **Comments**: 
 
-**:pencil2: How:**: Data filtering[](https://training.galaxyproject.org/training-material/topics/metabolomics/tutorials/lcms/tutorial.html#hands-on-data-filtering)
+we used this tool again, since this time indicators will be computed on normalised intensities. What we are going to use this time is the tabular output, but while we are at it we can always check the pdf file.
+ 
+**:chart_with_upwards_trend: Output**: 
+
+The tool provides a variableMetadata tabular output, containing all the computed CV values. We can use these values to filter our data using the **Generic_Filter**   tool.
+
+**:pencil2: How:**: 
+
+Data filtering[](https://training.galaxyproject.org/training-material/topics/metabolomics/tutorials/lcms/tutorial.html#hands-on-data-filtering)
 
 1.  **Generic_Filter**  tool  with the following parameters:
     -   _“Data matrix file”_:  `Batch_correction_linear_dataMatrix.tsv`
@@ -491,9 +445,12 @@ Hands On: CV calculation[](https://training.galaxyproject.org/training-material/
             -   _“Remove factor when”_:  `pool`
 
 
-  :heavy_exclamation_mark: **Outcome**: we got rid of the pools. 
+  :heavy_exclamation_mark: **Outcome**: 
+
+We got rid of the pools. 
   
    :heavy_exclamation_mark: **Remarks**:
+   
   1.  The  _0.3_  value corresponds to the maximum value kept in the dataset (‘Interval of values to remove:  _upper_’) regarding the  _poolCV_  column in the  _Variable metadata_  file.  pool CV values are commonly considered as reflecting unstable ions when superior to 0.3. Although the signal drift correction decreased the proportion of ions with pool CV > 30% from 74% to 53%, we still need to get rid of these remaining unstable ions for which sample comparisons would be difficult and at high risk of being unreliable.
 2.  The  _1.0_  value corresponds to the maximum value kept in the dataset (‘Interval of values to remove:  _upper_’) regarding the  _poolCV_over_sampleCV_  column in _Variable metadata_  file. This means that any ion with a pool CV / sample CV ratio above 1 (_i.e._  a pool CV greater than the sample CV) is discarded from the dataset.
 3.  Filtering led to 2706 ions and 6 samples.
@@ -573,13 +530,15 @@ In our example of correlation analysis, two indices can be used to filter the da
 -   **P-values:**  it indicates whether it is likely for a given correlation coefficient not to be actually different from zero; considering a threshold of 0.05 generally corresponds to a misleading risk of 5%.
 -   **Correlation coefficient:**  it indicates if the correlation between a given ion and the biological factor is strong or not; it goes from -1 to 1, with 0 meaning no correlation; in our example we consider as a sufficiently strong link a coefficient with absolute value above 0.9.
 
-# Annotation
+# 4. Annotation
 
 
 **:bulb: Goal**
+
 To bring your ion’s masses and a reference mass bank face to face. This will give you potential origins of your ions.
 
-**:pencil2: How:** 
+**:pencil2: How:**
+
 In this tutorial, we chose the easy case of human urinary samples. Thus, one possibility we have is to use the online reference bank HMDB (The Human Metabolome Database). Let’s try requesting directly into this widely used bank using the  **HMDB MS search**  tool  tool.
 
 Annotating the data using the HMDB[](https://training.galaxyproject.org/training-material/topics/metabolomics/tutorials/lcms/tutorial.html#hands-on-annotating-the-data-using-the-hmdb)
@@ -592,8 +551,19 @@ Annotating the data using the HMDB[](https://training.galaxyproject.org/training
      -   _“Number of maximum entries returned by the query “_:  `3`
      -   _“Molecular Species “_:  `Negatif Mode
 
- :heavy_exclamation_mark: **Comments**: we provide a Mass-to-charge ratio (_i.e._ a mass delta) based on what we globally know about the technique used to analyze the samples. Has to be set with a relevant value. If too low, no matches for the ions even though the original molecule is present in the database. Setting too high --> huge number of matches,time-consuming 
- 
-# Conclusion
+ :heavy_exclamation_mark: **Comments**: 
 
-data analysis in Metabolomics with LC-MS data workflow example.
+We provide a Mass-to-charge ratio (_i.e._ a mass delta) based on what we globally know about the technique used to analyze the samples. Has to be set with a relevant value. If too low, no matches for the ions even though the original molecule is present in the database. Setting too high --> huge number of matches,time-consuming 
+ 
+# 5. Conclusion
+
+ - Data analysis in Metabolomics with LC-MS data workflow example.
+   
+ -  Begun to comprehend  the diversity of LC-MS metabolomic data
+   analysis.
+   
+ -  Familiarity with the main steps constituting a metabolomic workflow
+   for untargeted LC-MS analysis.
+   
+  - Evaluation of the potential of a workflow approach when dealing with
+   LC-MS metabolomic data.
