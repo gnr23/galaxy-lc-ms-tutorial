@@ -179,9 +179,6 @@ Peakpicking step with the XCMS findChromPeaks (xcmsSet) tool. The idea here is, 
         -   _“Prefilter step for for the first analysis step (ROI detection)”_:  `3,5000`
         -   _“Noise filter”_:  `1000`
 
-**:chart_with_upwards_trend: Output**
-
-
 :heavy_exclamation_mark: **Comment**: 
  
 XCMS provides other filtering options allowing you to get rid of ions that we don’t want to consider. For example, we can use _Spectra Filters_ allowing you to discard some RT or M/z ranges, or _Noise filter_ (as in this hands-on) not to use low intensity measures in the ROI detection step.
@@ -212,8 +209,10 @@ To merge the different `RData` files into a single one
     -   _“RData file”_:  `sacurine.raw.xset.RData`  (collection)
     -   _“Sample metadata file”_:  `Nothing selected`
 
-**:chart_with_upwards_trend: Output**
+![Tabular](Images/12.png)
 
+**:chart_with_upwards_trend: Output**
+ 
 The tool generates a single  `RData`  file containing information from all the samples in your dataset collection input.
 
  :heavy_exclamation_mark: **Comments**: 
@@ -224,7 +223,7 @@ In the case of this study , we do not want to separate the samples according to 
 
  **:bulb: Goal**
 
-We want now is a single matrix of ions intensities for all samples. To obtain such a table, we need to determine, among the individual ion lists, which ions are the same. This is the aim of the present step, called ‘grouping’.
+We want now a single matrix of ions intensities for all samples. To obtain such a table, we need to determine, among the individual ion lists, which ions are the same. This is the aim of the present step, called ‘grouping’.
 
 **:pencil2: How:** 
 
@@ -238,11 +237,15 @@ xcms groupChromPeaks (group)[](https://training.galaxyproject.org/training-mater
     -   _“Bandwidth”_:  `5.0`
     -   _“Width of overlapping m/z slices”_:  `0.01`
 
+![Grouping](Images/13.png)
+
 **:chart_with_upwards_trend: Output**
 
+![Grouping](Images/14.png)
 
  :heavy_exclamation_mark: **Comments**: 
-1.  When looking at the  `283.1127 - 283.1163`  m/z slice, There are 3 peak groups in this m/z slice. The two peaks that are not assigned to peak groups are alone in their retention time area. Thus, the number of samples under the corresponding density peaks does not reach the minimum fraction of samples set by the user (0.5) to consider a peak group.
+
+1.  When looking at the `283.1127 - 283.1163` m/z slice, There are 3 peak groups in this m/z slice. The two peaks that are not assigned to peak groups are alone in their retention time area. Thus, the number of samples under the corresponding density peaks does not reach the minimum fraction of samples set by the user (0.5) to consider a peak group.
 
 3.  For  `284.1198 - 284.1253`  m/z slice, if   the bandwidth value had been set to a smaller value, the density peak width would have been smaller. With a small-enough bandwidth value, there could have been two density peaks instead of one under the current first density peak. Thus, the sample in line 5 would have been out of the previous peak group, thus not assigned to any peak group due to the 0.5 minimum fraction limit.
 
@@ -261,21 +264,32 @@ xcms adjustRtime (retcor)[](https://training.galaxyproject.org/training-material
     -   _“RData file”_:  `xset.merged.groupChromPeaks.RData`
     -   _“Method to use for retention time correction”_:  `PeakGroups - retention time correction based on aligment of features (peak groups) present in most/all samples.`
         -   _“Minimum required fraction of samples in which peaks for the peak group were identified”_:  `0.8299`
-
 everything else is left to default values.
+
+![Grouping](Images/15.png)
 
 **:chart_with_upwards_trend: Output**
 
+![Retention corr1](Images/16.png)
+
+![Retention corr2](Images/17.png)
 
  :heavy_exclamation_mark: **Comments**: 
 
 This tool generated a plot output that visualises how retention time was applied across the samples and along the chromatogram. It also allows you to check whether the well behaved peaks were distributed homogeneously along the chromatogram.
+
+:heavy_exclamation_mark: **Optional**: 
+
+the peak list may contain NA when peaks where not considered peaks in only some of the samples in the first ‘findChromPeaks’ step. This does not necessary means that no peak exists for these samples. For example, sometimes peaks are of very low intensity for some samples and were not kept as peaks because of that in the first ‘findChromPeaks’ step.
+
+![NA](Images/19.png)
 
 ## 8: Final XCMS step: integrating areas of missing peaks
 
  :bulb: Goal:
  
  To integrate signal in the mz-rt area of an ion (chromatographic peak group) for samples in which no chromatographic peak for this ion was identified.
+
 :pencil2: How: 
 
 **xcms** **fillChromPeaks (fillPeaks)**[](https://training.galaxyproject.org/training-material/topics/metabolomics/tutorials/lcms/tutorial.html#hands-on-xcms-fillchrompeaks-fillpeaks)
@@ -285,9 +299,8 @@ This tool generated a plot output that visualises how retention time was applied
     -   In  _“Peak List”_:
         -   _“Convert retention time (seconds) into minutes”_:  `Yes`
         -   _“Number of decimal places for retention time values reported in ions’ identifiers.”_:  `2`
-Image NA.png
 
-:chart_with_upwards_trend: Output
+![fillchrom](Images/20.png)
 
 :alarm_clock: Observations: 
 
@@ -333,7 +346,7 @@ The information given by this tool is not mandatory for the next step of the met
 
 *At this step of the metabolomic workflow, I will split my analysis by beginning a new Galaxy history with only the 3 tables I need. for tidiness and for future review of the analysis process reasons. To begin a new history with the 3 tables from the current history, we use the functionality ‘copy dataset’ and copy it into a new history.*
 
-image copy datasets.png
+![history copy](Images/21.png)
 
 ## 10. Conclusions :white_check_mark: 
 
@@ -370,7 +383,9 @@ Using  **Quality Metrics**  to get an overview of myhdata[](https://training.gal
     -   _“Variable metadata file”_:  `variableMetadata.tsv`
 
 **:chart_with_upwards_trend: Output**
-output quality metrics image.png
+
+![history copy](Images/22.png)
+
 -   Summary of the intensities in the dataMatrix file (information.txt file and plot top center paragraph)
 -   View of these intensities with a color scale (plot bottom right panel)
 -   2-components PCA score plot to check for clusters or outliers (plot top left panel)
@@ -398,8 +413,10 @@ Data normalisation[](https://training.galaxyproject.org/training-material/topics
         -   _“Factor of interest “_:  `gender`
 
 **:chart_with_upwards_trend: Output**
-batch correction 1 .png
-batch correction 2 .png
+
+![history copy](Images/23.png)
+
+![history copy](Images/24.png)
 
  :heavy_exclamation_mark: **Comments**: 
   In this case-study, since we only have 3 pools, there are only two possible choices: _linear_ or _all loess sample_ When possible, we should use pools to correct the signal drift, that is why we chose to run the tool with _linear_.
