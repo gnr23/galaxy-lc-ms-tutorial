@@ -1,4 +1,4 @@
-﻿# LC-MS/MS Metabolomics Tutorial (Galaxy)
+# LC-MS/MS Metabolomics Tutorial (Galaxy)
 
 ## 🔬 Project Description
 This repository follows the Galaxy tutorial for LC-MS/MS-based metabolomics analysis.
@@ -155,12 +155,12 @@ The tool generates a single RData file containing information from all the sampl
 
 ## Step 7: Second XCMS step: determining shared ions across samples
 
-• Goal: to obtain a single matrix of ions intensities for all samples. 
--This process is called grouping
--It aligns ions extracted with close retention time and close m/z values in the different samples
--An algorithm is used to detect region of retention time with high density of ions based on a gaussian moden the grouping is defined by the SD of the model.
+in order to obtain a single matrix of ions intensities for all samples. This process is called grouping
+aligns ions extracted with close retention time and close m/z values in the different samples
+ an algorithm is used to detect region of retention time with high density of ions based on a gaussian modenl
+the grouping is defined by the SD of the model.
 
-• how: 
+how: 
 xcms groupChromPeaks (group)
 xcms groupChromPeaks (group) tool with the following parameters:
 “RData file”: xset.merged.RData
@@ -168,62 +168,14 @@ xcms groupChromPeaks (group) tool with the following parameters:
 “Bandwidth”: 5.0
 “Width of overlapping m/z slices”: 0.01
 
-• What just happened
-
 -a pdf file is created. 
 -It provides one plot per m/z slice found in the data. 
 -Each picture represents the peak density across samples, 
 -plotting the corresponding Gaussian model which width is defined by the bandwidth parameter. 
--Each red dot corresponds to a sample. The plot allows to assess the quality of alignment. 
+-Each red dot corresponds to a sample. The plot allows to assess the quality of alignment. T
 -he grey areas’ width is associated with the bandwidth parameter.
 
-Observations:
-
-1. For the 283.1127 - 283.1163 m/z slice, there are 3 peak groups. The two peaks that are not assigned to peak groups are alone in their retention time area. Thus, the number of samples under the corresponding density peaks does not reach the minimum fraction of samples set by the user (0.5) to consider a peak group.
-2. For the 284.1198 - 284.1253 m/z slice, If the bandwidth value had been set to a smaller value, the density peak width would have been smaller. With a small-enough bandwidth value, there could have been two density peaks instead of one under the current first density peak. Thus, the sample in line 5 would have been out of the previous peak group, thus not assigned to any peak group due to the 0.5 minimum fraction limit.
-
-## Step 7b: XCMS step: retention time correction
-• Goal: To correct retention time drift for each peak among samples. 
-
--With LC-MS techniques, a deviation in retention time occurs from a sample to another. 
--The correction is based on what is called well behaved peaks a.k.a
-a percentage of the total number of samples in which a peak should be found to be considered a well behaved peak. 
--This parameter is called minimum required fraction of samples.
 
 
-• how: 
-xcms adjustRtime (retcor)
-xcms adjustRtime (retcor) tool with the following parameters:
-o “RData file”: xset.merged.groupChromPeaks.RData
-o “Method to use for retention time correction”: PeakGroups - retention time correction based on aligment of features (peak groups) present in most/all samples.
-• “Minimum required fraction of samples in which peaks for the peak group were identified”: 0.8299
 
 
-• What just happened
-
--This tool generates a plot output that you can use to visualise how retention time was applied across the samples and along the chromatogram. -It also to check whether the well behaved peaks were distributed homogeneously along the chromatogram.
-
-• Extra step: Tip: Check the impact of RT correction using 'xcms plot chromatogram'
-How: Hands On: xcms plot chromatogram
-xcms plot chromatogram tool with the following parameters:
-o “RData file”: xset.merged.groupChromPeaks.adjustRtime.RData
-
-
-Observations :
-1. Applying the correction retention time step on the data requires to complete it with an additional ‘grouping’ step using the xcms groupChromPeaks (group) tool again.
-2. Parameters for this second group step are expected to be similar to the first group step. Nonetheless, since retention times are supposed to be less variable inside a same peak group now, in some cases it can be relevant to lower a little the bandwidth parameter.
-- how: 
-second 'xcms groupChromPeaks (group)'
-xcms groupChromPeaks (group) tool with the following parameters:
-“RData file”: xset.merged.groupChromPeaks.adjustRtime.RData
-“Method to use for grouping”: PeakDensity - peak grouping based on time dimension peak densities
-“Bandwidth”: 5.0
-“Width of overlapping m/z slices”: 0.01
-“Get the Peak List”: Yes
-“Convert retention time (seconds) into minutes”: Yes
-“Number of decimal places for retention time values reported in ions’ identifiers.”: 2
-“Replace the remain NA by 0 in the dataMatrix”: No   
-
-## Step 8: Final XCMS step: integrating areas of missing peaks
-
-                 
