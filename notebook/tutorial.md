@@ -104,7 +104,7 @@ To do so, we can use a tool that is called xcms plot chromatogram tool that will
 
 Thus, we may need to upload into Galaxy a table containing metadata of our samples (a sampleMetadata file).
 
-##Step 3 : Importing a sample metadata file
+## Step 3 : Importing a sample metadata file
 
 - A sampleMetadata file corresponds to a table containing information about the samples (= sample metadata).
 
@@ -218,15 +218,11 @@ The tool generates a single RData file containing information from all the sampl
 
 ## Step 7: Second XCMS step: determining shared ions across samples
 
-<![if !supportLists]>· <![endif]>Goal: to obtain a single matrix of ions intensities for all samples.
-
--This process is called grouping
-
--It aligns ions extracted with close retention time and close m/z values in the different samples
-
--An algorithm is used to detect region of retention time with high density of ions based on a gaussian moden the grouping is defined by the SD of the model.
-
-<![if !supportLists]>· <![endif]>how:
+ - List item Goal: to obtain a single matrix of ions intensities for all samples.
+ - This process is called grouping
+ - It aligns ions extracted with close retention time and close m/z values in the different samples
+ - An algorithm is used to detect region of retention time with high density of ions based on a gaussian moden the grouping is  defined by the SD of the model.
+ - how:
 
 xcms groupChromPeaks (group)
 
