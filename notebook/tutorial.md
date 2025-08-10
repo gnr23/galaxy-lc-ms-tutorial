@@ -359,6 +359,10 @@ At the end of the Preprocessing step, we have three tabulation-separated tables:
 -   A  **sampleMetadata**  file given and completed 
 -   A  **dataMatrix**  file from XCMS.fillChromPeaks
 -   A  **variableMetadata**  file from either XCMS.fillChromPeaks or CAMERA.annotate
+The dataMatrix file is a table containing the intensities of measured variables (ions, in lines) for every samples (in column). The first column is for ions’ identifiers while the first line is for samples’ identifiers.
+The variableMetadata file is a table containing information about the ions. The first column is for ions’ identifiers while the other columns gather information about m/z and retention time (rt).
+The sampleMetadata file is a table containing information about the samples. The first column is for samples’ identifiers while the other columns gather analytical and biological information such as the order of injection in the analytical sequence and the biological groups of interest for the supposed study.
+
 
 # Data processing: quality checks, normalisation, data filtering
 
